@@ -1,0 +1,65 @@
+services:
+  mysqldb:
+    image: mysql:8.0
+    container_name: mysqlcontainer
+    command: --authentication_policy=mysql_native_password
+    restart: unless-stopped
+    volumes:
+      - ./mydb.sql:/docker-entrypoint-initdb.d/0_init.sql
+      - $HOME/database:/var/lib/mysql
+    ports:
+      - 3900:3306
+    expose:
+      - 3306
+    environment:
+      MYSQL_DATABASE: syce1a
+      MYSQL_USER: "jainil"
+      MYSQL_PASSWORD: "jainil115"
+      MYSQL_ROOT_PASSWORD: "jainil115"
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysqldb
+      SERVER_PORT: 3000
+    networks:
+      - internalnet
+
+  nodejsapi:
+    container_name: node-js-api
+    build: ../api/
+    image: jainilp12/nodejsapi:1.0
+    ports:
+      - 8800:8800
+    expose:
+      - 8800
+    environment:
+      DB_HOST: mysqldb
+      DB_PORT: 3306
+      DB_NAME: syce1a
+      DB_USER: "jainil"
+      DB_PASSWORD: "jainil115"
+      DB_CONNECTION_LIMIT: 20
+      SERVICE_TAGS: dev
+      SERVICE_NAME: nodejsapi
+      SERVER_PORT: 8800
+    networks:
+      - internalnet
+    depends_on:
+      - mysqldb
+
+  reactwebapp:
+    container_name: react-web-app-container
+    build: ../client/
+    image: jainilp12/reactwebapp:1.0
+    ports:
+      - 3000:3000
+    expose:
+      - 3000
+    environment:
+      SERVICE_TAGS: dev
+      SERVICE_NAME: reactwebapp
+    networks:
+      - internalnet
+    depends_on:
+      - nodejsapi
+networks:
+  internalnet:
+    driver: bridge
