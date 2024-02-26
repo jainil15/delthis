@@ -9,13 +9,15 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, PUT, POST");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
   next();
 });
-
 
 app.use("/api/posts", postRoutes);
 app.use("/api/auths", authRoutes);
@@ -23,7 +25,7 @@ app.use("/api/users", userRoutes);
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "../client/public/upload");
+    cb(null, "./upload/");
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + file.originalname);
@@ -34,9 +36,14 @@ const upload = multer({ storage: storage });
 
 app.post("/api/upload", upload.single("file"), function (req, res) {
   console.log("called");
+  console.log(file.filename);
   const file = req.file;
   res.status(200).json(file.filename);
 });
+
+// app.get("/api/upload/:id", function (req, res) {
+
+// })
 
 app.listen(8800, () => {
   console.log("Connected t0 8800");
