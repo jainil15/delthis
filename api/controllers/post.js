@@ -1,7 +1,16 @@
 const db = require("../db.js");
 const jwt = require("jsonwebtoken");
-
+const redisClient = require("../redisdb.js")
+redisClient.connect();
 const getPosts = (req, res) => {
+  redisClient.get('posts', (error, cachedData) => {
+    if (error) {
+      console.log(error);
+    }
+    else {
+      console.log(cachedData);
+    }
+  })
   const q = req.query.cat
     ? "SELECT * FROM posts where cat=?"
     : "SELECT * FROM posts";

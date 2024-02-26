@@ -22,4 +22,11 @@ module.exports = function (app) {
       changeOrigin: true,
     })
   );
+  app.use(
+    "/file",
+    createProxyMiddleware({
+      target: "http://host.docker.internal:8800/api",
+      changeOrigin: true,
+    })
+  );
 };
