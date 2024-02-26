@@ -61,7 +61,7 @@ const Single = () => {
           <div className="content">
             <img src={`../upload/${post?.img}`} />
               <div className="user">
-                <img src={post.userImage} />
+                <img src={`/file/${post.userImage}`} />
                 <span>Username: {post.username}</span>
               </div>
               <div className="info">
