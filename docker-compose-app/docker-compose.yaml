@@ -1,25 +1,27 @@
 version: "3.0"
 services:
+  #mysql service
   mysqldb:
     image: mysql:8.0
     container_name: mysqlcontainer
-    command: --authentication_policy=mysql_native_password
     restart: unless-stopped
+    # creating volumes to keep the database data consistent and intializing the database with initial data
     volumes:
       - ./mydb.sql:/docker-entrypoint-initdb.d/0_init.sql
       - $HOME/database:/var/lib/mysql
+    # exposing differenct port because port is already in use
     ports:
-      - 3900:3306
+      - 3900:${MYSQL_PORT}
     expose:
-      - 3306
+      - ${MYSQL_PORT}
     environment:
-      MYSQL_DATABASE: syce1a
-      MYSQL_USER: "jainil"
-      MYSQL_PASSWORD: "jainil115"
-      MYSQL_ROOT_PASSWORD: "jainil115"
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       SERVICE_TAGS: dev
       SERVICE_NAME: mysqldb
-      SERVER_PORT: 3000
+    # using custom bridge network to isolate the containers
     networks:
       - internalnet
 
@@ -28,24 +30,23 @@ services:
     build: ../api/
     image: jainilp12/nodejsapi:1.0
     ports:
-      - 8800:8800
+      - 8800:${SERVER_PORT}
     expose:
-      - 8800
+      - ${SERVER_PORT}
     environment:
       DB_HOST: mysqldb
-      DB_PORT: 3306
-      DB_NAME: syce1a
-      DB_USER: "jainil"
-      DB_PASSWORD: "jainil115"
-      DB_CONNECTION_LIMIT: 20
+      DB_PORT: ${MYSQL_PORT}
+      DB_NAME: ${MYSQL_DATABASE}
+      DB_USER: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
 
-      REDIS_HOST: redisdb
-      REDIS_PORT: 6379
-      REDIS_PASSWORD: jainil115
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
 
       SERVICE_TAGS: dev
       SERVICE_NAME: nodejsapi
-      SERVER_PORT: 8800
+      SERVER_PORT: ${SERVER_PORT}
     networks:
       - internalnet
     depends_on:
@@ -57,9 +58,9 @@ services:
     build: ../client/
     image: jainilp12/reactwebapp:1.0
     ports:
-      - 3000:3000
+      - 3000:${REACT_PORT}
     expose:
-      - 3000
+      - ${REACT_PORT}
     environment:
       SERVICE_TAGS: dev
       SERVICE_NAME: reactwebapp
@@ -73,7 +74,7 @@ services:
     container_name: rediscontainer
     restart: always
     ports:
-      - 6379:6379
+      - 6379:${REDIS_PORT}
     environment:
       SERVICE_TAGS: dev
       SERVICE_NAME: redisdb
