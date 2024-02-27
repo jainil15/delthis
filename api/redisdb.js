@@ -3,7 +3,7 @@ const dotenv = require("dotenv");
 
 dotenv.config();
 const redisClient = redis.createClient({
-  url: `http://host.docker.internal:${process.env.REDIS_PORT}`
+  url: `redis://localhost:${process.env.REDIS_PORT}`
 });
 redisClient.on('error', (err) => {
   console.error('Redis Error:', err);
